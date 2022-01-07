@@ -72,8 +72,29 @@ func GoToDir(rootPath string, m *sync.Map, wg *sync.WaitGroup) error {
 	return nil
 }
 
-func GetSize(path string) int64 {
+func GetDirSize(path string) int64 {
 	var size int64
+
+	dir, err := os.Open(path)
+	if err != nil {
+		return size
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(0)
+	if err != nil {
+		return size
+	}
+
+	for _, file := range files {
+		if file.Name() == "." || file.Name() == ".." {
+			continue
+		}
+		if file.IsDir() {
+			size += GetDirSize(fmt.Sprintf("%s/%s", path, file.Name()))
+		}
+		size += file.Size()
+	}
 
 	return size
 }
