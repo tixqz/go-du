@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"text/tabwriter"
 )
 
 var DirSizes sync.Map
@@ -56,13 +57,16 @@ func GoToDir(rootPath string, m *sync.Map, wg *sync.WaitGroup) error {
 			return errOut
 		}
 
-		currPath := fmt.Sprintf("%s/%s", rootPath, d.Name())
+		if d.IsDir() {
+			// currPath := fmt.Sprintf("%s/%s", rootPath, d.Name())
+			//             info, err := d.Info()
+			//             if err != nil {
+			// 	return err
+			// }
+			currPath, _ := filepath.Rel(rootPath, path)
 
-		info, err := d.Info()
-		if err != nil {
-			return err
+			m.Store(currPath, GetDirSize(currPath))
 		}
-		m.Store(currPath, info.Size())
 
 		return nil
 	}); err != nil {
@@ -100,9 +104,11 @@ func GetDirSize(path string) int64 {
 }
 
 func PrintResult(m *sync.Map, out io.Writer) {
+	w := tabwriter.NewWriter(out, 0, 8, 0, '\t', tabwriter.AlignRight)
+	defer w.Flush()
+
 	m.Range(func(k, v interface{}) bool {
-		s := fmt.Sprintf("%d    %s\n", v, k)
-		io.WriteString(out, s)
+		fmt.Fprintf(w, "%d\t%s\n", v, k)
 		return true
 	})
 }
