@@ -1,9 +1,15 @@
 package main
 
 import (
+	"io/fs"
 	"testing"
-	_ "testing/fstest"
+	"testing/fstest"
 )
+
+var MockFS = fstest.MapFS{
+	"/root-dir/":         {Mode: fs.ModeDir},
+	"/root-dir/test.txt": {Data: []byte("this is test file")},
+}
 
 func TestWalk(t *testing.T) {
 
