@@ -2,13 +2,13 @@ NAME="godu"
 ARGS=""
 
 build:
-	go build -o ${NAME} *.go
+	go build -o bin/${NAME} *.go
 
 run:
 	./${NAME} ${ARGS}
 
 clean:
-	rm -rf ${NAME} *.out
+	rm -rf ./bin/ *.out
 
 test:
 	go test
