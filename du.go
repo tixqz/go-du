@@ -18,7 +18,7 @@ func main() {
 
 	stdOut := os.Stdout
 
-	if err := DiskUsage(paths); err != nil {
+	if err := DiskUsage(paths, &DirSizes); err != nil {
 		fmt.Printf("Error while executing command. Err: %v", err)
 		os.Exit(1)
 	}
@@ -26,7 +26,7 @@ func main() {
 	PrintResult(&DirSizes, stdOut)
 }
 
-func DiskUsage(paths []string) error {
+func DiskUsage(paths []string, m *sync.Map) error {
 
 	var wg sync.WaitGroup
 	err := make(chan error)
@@ -34,7 +34,7 @@ func DiskUsage(paths []string) error {
 	wg.Add(len(paths))
 
 	for _, path := range paths {
-		go GoToDir(path, &DirSizes, &wg, err)
+		go GoToDir(path, m, &wg, err)
 
 		select {
 		case err := <-err:
@@ -100,7 +100,11 @@ func PrintResult(m *sync.Map, out io.Writer) {
 	defer w.Flush()
 
 	m.Range(func(k, v interface{}) bool {
-		fmt.Fprintf(w, "%d\t%s\n", v, k)
+		fmt.Fprintf(w, "%d\t%s\n", int64(v.(int64)/1024.0), k)
 		return true
 	})
+}
+
+func HumanReadable(d interface{}) string {
+	return ""
 }
