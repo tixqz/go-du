@@ -3,7 +3,7 @@ Naive implementation of du command tool written in go. It lacks most of features
 
 ### Usage
 
-`./dugo`"path/to/dir1" "path/to/dir2" "path/to/dir/etc"
+`./dugo "path/to/dir1" "path/to/dir2" "path/to/dir/etc"`
 
 Program processing different directories via different goroutines: 1 directory -> 1 goroutine.
 
